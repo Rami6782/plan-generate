@@ -1,8 +1,8 @@
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { FileText, MapPin, Calendar, Layers, Users, DollarSign } from "lucide-react";
 import { countries, modules, phases, type ProjectConfig } from "@/lib/mock-data";
+import CostBreakdownTable from "@/components/CostBreakdownTable";
 
 interface Props {
   config: ProjectConfig;
@@ -13,14 +13,6 @@ const StepReview = ({ config }: Props) => {
   const selectedModules = modules.filter((m) => config.modules.includes(m.id));
   const totalOffsite = config.resources.reduce((s, r) => s + r.offsite, 0);
   const totalOnsite = config.resources.reduce((s, r) => s + r.onsite, 0);
-
-  const estimatedCost =
-    totalOffsite * config.commercial.offsiteCostRate * 20 +
-    totalOnsite * config.commercial.onsiteCostRate * 20 +
-    totalOnsite * config.commercial.flightCost +
-    totalOnsite * config.commercial.perDiem * 20 +
-    totalOnsite * config.commercial.hotelCost * 20;
-  const finalCost = estimatedCost * config.commercial.coefficient;
 
   return (
     <div className="animate-fade-in space-y-6">
@@ -92,22 +84,12 @@ const StepReview = ({ config }: Props) => {
         </div>
       </div>
 
-      {/* Cost summary */}
+      {/* Cost Breakdown Table */}
       <div className="surface-card p-4 space-y-2">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <DollarSign className="w-3.5 h-3.5" /> Cost Estimate
+          <DollarSign className="w-3.5 h-3.5" /> Cost Breakdown (WBS)
         </h3>
-        <Separator />
-        <div className="flex items-end justify-between">
-          <div className="text-sm text-muted-foreground">
-            <p>Base cost: ${estimatedCost.toLocaleString()}</p>
-            <p>Coefficient: {config.commercial.coefficient}×</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-muted-foreground">Total Estimated</p>
-            <p className="text-2xl font-bold text-accent">${Math.round(finalCost).toLocaleString()}</p>
-          </div>
-        </div>
+        <CostBreakdownTable config={config} />
       </div>
     </div>
   );
