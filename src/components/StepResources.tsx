@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Users } from "lucide-react";
-import { phases, type ProjectConfig, type ResourceMix } from "@/lib/mock-data";
+import { type ProjectConfig } from "@/lib/mock-data";
+import { usePhases } from "@/hooks/use-api-data";
 
 interface Props {
   config: ProjectConfig;
@@ -9,6 +9,8 @@ interface Props {
 }
 
 const StepResources = ({ config, onChange }: Props) => {
+  const { data: phases = [] } = usePhases();
+
   const updateResource = (phaseId: string, field: "offsite" | "onsite", value: number) => {
     const next = config.resources.map((r) =>
       r.phaseId === phaseId ? { ...r, [field]: value } : r

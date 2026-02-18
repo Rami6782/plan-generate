@@ -9,7 +9,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Layers, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { segments, modules, type ProjectConfig } from "@/lib/mock-data";
+import { type ProjectConfig } from "@/lib/mock-data";
+import { useModules, useSegments } from "@/hooks/use-api-data";
 
 interface Props {
   config: ProjectConfig;
@@ -17,6 +18,9 @@ interface Props {
 }
 
 const StepScope = ({ config, onChange }: Props) => {
+  const { data: modules = [], isLoading: modulesLoading } = useModules();
+  const { data: segments = [], isLoading: segmentsLoading } = useSegments();
+
   const filteredModules = config.segment
     ? modules.filter((m) => m.segment === config.segment)
     : modules;
@@ -44,7 +48,7 @@ const StepScope = ({ config, onChange }: Props) => {
         <Label>Segment</Label>
         <Select value={config.segment} onValueChange={(v) => onChange({ segment: v, modules: [] })}>
           <SelectTrigger>
-            <SelectValue placeholder="Select segment" />
+            <SelectValue placeholder={segmentsLoading ? "Loading…" : "Select segment"} />
           </SelectTrigger>
           <SelectContent>
             {segments.map((s) => (
@@ -56,29 +60,33 @@ const StepScope = ({ config, onChange }: Props) => {
 
       <div className="space-y-3">
         <Label>Modules</Label>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {filteredModules.map((m) => {
-            const checked = config.modules.includes(m.id);
-            return (
-              <label
-                key={m.id}
-                className={cn(
-                  "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all",
-                  checked
-                    ? "border-accent bg-accent/5 shadow-sm"
-                    : "border-border hover:border-accent/40 hover:bg-muted/50"
-                )}
-              >
-                <Checkbox checked={checked} onCheckedChange={() => toggleModule(m.id)} />
-                <div className="flex items-center gap-2">
-                  <Package className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">{m.name}</span>
-                </div>
-              </label>
-            );
-          })}
-        </div>
-        {filteredModules.length === 0 && (
+        {modulesLoading ? (
+          <p className="text-sm text-muted-foreground">Loading modules…</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {filteredModules.map((m) => {
+              const checked = config.modules.includes(m.id);
+              return (
+                <label
+                  key={m.id}
+                  className={cn(
+                    "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all",
+                    checked
+                      ? "border-accent bg-accent/5 shadow-sm"
+                      : "border-border hover:border-accent/40 hover:bg-muted/50"
+                  )}
+                >
+                  <Checkbox checked={checked} onCheckedChange={() => toggleModule(m.id)} />
+                  <div className="flex items-center gap-2">
+                    <Package className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{m.name}</span>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+        )}
+        {!modulesLoading && filteredModules.length === 0 && (
           <p className="text-sm text-muted-foreground italic">Select a segment first to see available modules.</p>
         )}
       </div>
