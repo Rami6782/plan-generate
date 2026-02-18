@@ -17,16 +17,18 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon, Briefcase, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { countries, type ProjectConfig } from "@/lib/mock-data";
+import { type ProjectConfig } from "@/lib/mock-data";
+import { useCountries } from "@/hooks/use-api-data";
 
 interface Props {
   config: ProjectConfig;
   onChange: (c: Partial<ProjectConfig>) => void;
 }
 
-const regions = [...new Set(countries.map((c) => c.region))];
-
 const StepBasics = ({ config, onChange }: Props) => {
+  const { data: countries = [], isLoading } = useCountries();
+
+  const regions = [...new Set(countries.map((c) => c.region).filter(Boolean))];
   const filteredCountries = config.region
     ? countries.filter((c) => c.region === config.region)
     : countries;
@@ -59,7 +61,7 @@ const StepBasics = ({ config, onChange }: Props) => {
             <Label>Region</Label>
             <Select value={config.region} onValueChange={(v) => onChange({ region: v, country: "" })}>
               <SelectTrigger>
-                <SelectValue placeholder="Select region" />
+                <SelectValue placeholder={isLoading ? "Loading…" : "Select region"} />
               </SelectTrigger>
               <SelectContent>
                 {regions.map((r) => (
@@ -72,7 +74,7 @@ const StepBasics = ({ config, onChange }: Props) => {
             <Label>Country</Label>
             <Select value={config.country} onValueChange={(v) => onChange({ country: v })}>
               <SelectTrigger>
-                <SelectValue placeholder="Select country" />
+                <SelectValue placeholder={isLoading ? "Loading…" : "Select country"} />
               </SelectTrigger>
               <SelectContent>
                 {filteredCountries.map((c) => (

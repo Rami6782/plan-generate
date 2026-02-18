@@ -1,7 +1,8 @@
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { FileText, MapPin, Calendar, Layers, Users, DollarSign } from "lucide-react";
-import { countries, modules, phases, type ProjectConfig } from "@/lib/mock-data";
+import { type ProjectConfig } from "@/lib/mock-data";
+import { useCountries, useModules, usePhases } from "@/hooks/use-api-data";
 import CostBreakdownTable from "@/components/CostBreakdownTable";
 
 interface Props {
@@ -9,6 +10,10 @@ interface Props {
 }
 
 const StepReview = ({ config }: Props) => {
+  const { data: countries = [] } = useCountries();
+  const { data: modules = [] } = useModules();
+  const { data: phases = [] } = usePhases();
+
   const country = countries.find((c) => c.id === config.country);
   const selectedModules = modules.filter((m) => config.modules.includes(m.id));
   const totalOffsite = config.resources.reduce((s, r) => s + r.offsite, 0);
